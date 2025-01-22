@@ -8,15 +8,22 @@ let data = await response.json();
 await extractData(data);
 }
 
-// Extract required data from API (Destination,Route Number,TimetoStation(seconds))
+// Extract required data from API (Destination,Route Number,TimetoStation(seconds)); Returns list of objects 
 async function extractData(data) {
     const extractInfo = data.map(busDetails=>({
         Destination:busDetails.destinationName, 
         Route:busDetails.lineName,
         TimeToStation:busDetails.timeToStation
     }));
-    console.log(extractInfo);
+    // console.log(extractInfo);
+    return extractInfo
+}
+
+// Sort buses by timeToStation 
+function arrivalTime(extractInfo) {
+    let sortedBuses = extractInfo.sort((a,b) = a.busDetails.timeToStation - b.busDetails.timeToStation);
 }
 
 // Calling FetchAPI
+
 fetchAPI();
