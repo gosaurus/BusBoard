@@ -20,9 +20,6 @@ function getPostCodeFromUser() {
     }
 }
 
-function getURL(...URLSubstring){
-   return URLSubstring.join("");
-}
 
 async function fetchAPI(apiUrl) {
     try {
@@ -37,12 +34,20 @@ async function fetchAPI(apiUrl) {
         console.error(Error);
     }
 }
+
+function parsePostCodeAPIdata(postCodeAPIRawData){
+    const  coords = {};
+    coords.longitude = postCodeAPIRawData.result.longitude;
+    coords.latitude = postCodeAPIRawData.result.latitude;
+    return coords;
+}
+
 //Main Part 2
-const postCode = getPostCodeFromUser();
-const postCodeAPISubstring = "https://api.postcodes.io/postcodes/";
-const postCodeAPIURL = getURL(postCodeAPISubstring, postCode);
-const postCodeAPIRawData= await fetchAPI(postCodeAPIURL);
-console.log(postCodeAPIRawData);
+const postCodeAPIURL = "https://api.postcodes.io/postcodes/"+getPostCodeFromUser();
+const postCodeAPIRawData = await fetchAPI(postCodeAPIURL);
+const postCodeCoords = parsePostCodeAPIdata(postCodeAPIRawData);
+console.log(postCodeCoords);
+
 
 /* Commented out to test functions
 call PostCodes.io API with postcode
