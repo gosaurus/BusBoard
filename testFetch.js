@@ -21,14 +21,28 @@ function getPostCodeFromUser() {
 }
 
 function getURL(...URLSubstring){
-//    console.log(URLSubstring.join(""));
    return URLSubstring.join("");
 }
 
+async function fetchAPI(apiUrl) {
+    try {
+    const response = await fetch(apiUrl);
+    if (response.status !== 200) {
+        throw new Error(`API not responding ${response.status}.`);
+    }
+    else {
+        return await response.json();
+    }}
+    catch (Error) {
+        console.error(Error);
+    }
+}
+//Main Part 2
 const postCode = getPostCodeFromUser();
 const postCodeAPISubstring = "https://api.postcodes.io/postcodes/";
 const postCodeAPIURL = getURL(postCodeAPISubstring, postCode);
-console.log(postCodeAPIURL);
+const postCodeAPIRawData= await fetchAPI(postCodeAPIURL);
+console.log(postCodeAPIRawData);
 
 /* Commented out to test functions
 call PostCodes.io API with postcode
@@ -58,11 +72,6 @@ function getURL(stopcode) {
     return "https://api.tfl.gov.uk/StopPoint/"+stopcode+"/Arrivals";
 }
 
-
-async function fetchAPI(apiUrl) {
-    const response = await fetch(apiUrl);
-    return await response.json();
-}
 
 async function parseData(data) {
     return data.map(busDetails => ({
