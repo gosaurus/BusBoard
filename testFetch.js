@@ -1,19 +1,52 @@
 import fetch from 'node-fetch';
 import readline from 'readline-sync';
 
+// get postcode via user input
+function getPostCodeFromUser() {
+    try {
+        const postCode = readline.question("Please enter your postcode: ").toUpperCase().trim();
+        const regex = /\b^(E|EC|N|NW|S|SW|SE|W|WC)[0-9]{1,2}\s?[0-9][A-Z]{2}\b/; // does not include greater London
+        if (regex.test(postCode)) {
+            console.log(postCode);
+            return postCode;
+        }
+        else {
+            throw new Error ("Invalid postcode.");
+        }
+    }
+    catch(Error) {
+        console.error(Error);
+        getPostCodeFromUser();
+    }
+}
+
+getPostCodeFromUser();
+
+/* Commented out to test functions
+call PostCodes.io API with postcode
+
+parse Response from PostCodes.io (lon & lat)
+
+call TfL API with longitude, latitude & stoptype (NaptanPublicBusCoachTram)
+
+process Response from TfL API --> 
+     get distances (from stopPoint object)
+     sort by distances
+     return close two bus stops by distance 
+
 function getStopCodeFromUser() {
     const stopcode = readline.question("Please enter the required stop code: ");
     const regex = /\b[0-9]{9}[A-Z]{1}\b/;
-    if(regex.test(stopcode)){
+    if  (regex.test(stopcode)) {
         return stopcode;
     }
-    else{
+    else {
         console.log("Invalid response");
         getStopCodeFromUser();
     }
 }
 
-function getURL(stopcode){  
+function getURL(stopcode) {  
     return "https://api.tfl.gov.uk/StopPoint/"+stopcode+"/Arrivals";
 }
 
@@ -44,19 +77,17 @@ function getFirstFiveBuses(busArrivalInMinutes) {
     return busArrivalInMinutes.slice(0,5);
 }
 
-function formattedBusDetails(firstFiveBuses){
-    firstFiveBuses.forEach((bus,index)=>
-{
+function formattedBusDetails(firstFiveBuses) {
+    firstFiveBuses.forEach((bus,index) => {
     console.log(`Bus ${index+1}`);
-    for(let[key,value] of Object.entries(bus)) {
-        if(key==="TimeToStation") {
+    for (let [key,value] of Object.entries(bus)) {
+        if (key==="TimeToStation") {
             console.log(`${key} : ${value} minutes`);
         }
         else {
         console.log(`${key} : ${value}`);
         }
-    }
-});
+    }});
 }
 
 // Main 
@@ -68,3 +99,4 @@ const sortedBusArrival = sortByArrivalTime(busInfo);
 const busArrivalInMinutes = convertArrivalTimeToMinutes(sortedBusArrival);
 const firstFiveBuses = getFirstFiveBuses (busArrivalInMinutes);
 formattedBusDetails(firstFiveBuses);
+*/
