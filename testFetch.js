@@ -20,7 +20,15 @@ function getPostCodeFromUser() {
     }
 }
 
-getPostCodeFromUser();
+function getURL(...URLSubstring){
+//    console.log(URLSubstring.join(""));
+   return URLSubstring.join("");
+}
+
+const postCode = getPostCodeFromUser();
+const postCodeAPISubstring = "https://api.postcodes.io/postcodes/";
+const postCodeAPIURL = getURL(postCodeAPISubstring, postCode);
+console.log(postCodeAPIURL);
 
 /* Commented out to test functions
 call PostCodes.io API with postcode
