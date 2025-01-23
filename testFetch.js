@@ -46,7 +46,9 @@ function parsePostCodeAPIdata(postCodeAPIRawData){
 const postCodeAPIURL = "https://api.postcodes.io/postcodes/"+getPostCodeFromUser();
 const postCodeAPIRawData = await fetchAPI(postCodeAPIURL);
 const postCodeCoords = parsePostCodeAPIdata(postCodeAPIRawData);
-console.log(postCodeCoords);
+const tFLStopPointsAPIURL = `https://api.tfl.gov.uk/StopPoint/?lat=${postCodeCoords.latitude}&lon=${postCodeCoords.longitude}&stopTypes=NaptanPublicBusCoachTram`;
+const tFLStopPointAPIRawData = await fetchAPI(tFLStopPointsAPIURL);
+console.log(tFLStopPointAPIRawData);
 
 
 /* Commented out to test functions
