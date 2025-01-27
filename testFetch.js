@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
 import readline from 'readline-sync';
 
+let postCode = "";
+
 async function fetchAPI(apiUrl) {
     try {
         const response = await fetch(apiUrl);
@@ -18,7 +20,7 @@ async function fetchAPI(apiUrl) {
 
 function getPostCodeFromUser() {
     try{
-        const postCode = readline.question("Please enter your postcode: ").toUpperCase().trim();
+        postCode = readline.question("Please enter your postcode: ").toUpperCase().trim();
         const regex = /\b^(E|EC|N|NW|S|SW|SE|W|WC)[0-9]{1,2}\s?[0-9][A-Z]{2}\b/; // Include greater London
         if (regex.test(postCode)) {
             return postCode;
@@ -76,6 +78,7 @@ function formattedBusDetails(busStopArrival,busStopName) {
 }
 
 async function getStopPointsDetails() {
+
     const postCodeAPIURL = "https://api.postcodes.io/postcodes/"+getPostCodeFromUser();
     const postCodeAPIRawData = await fetchAPI(postCodeAPIURL);
     const postCodeCoords = parsePostCodeAPIdata(postCodeAPIRawData);
@@ -91,23 +94,49 @@ async function getArrivalPredictions(busStopURL) {
     return firstFiveBuses;
 }
 
-
 //Function to parse raw data from TFL Journey Planner API
 
 async function parseTflJourneyPlannerRawData(tflJourneyPlannerRawData) {
+    const journeyLegs = [];
+    const steps = [];
+    const direction = [];
+    const description = [];
+    tflJourneyPlannerRawData.journeys.forEach((object) => {
+        journeyLegs.push(object.legs);
+        });
+    journeyLegs.flat().forEach((subObject) => {
+        steps.push(subObject.instruction.steps);
+    });
+
+    steps.flat().forEach((subSubObject) => {
+        direction.push(subSubObject.descriptionHeading);
+        description.push(subSubObject.description);
+    });
     
+    return {"direction":direction, "description":description};
+}
+
+function formatJourney(parsedData){
+    const journey = [];
+    const directions = parsedData.direction;
+    const description = parsedData.description;
+    for (let i = 0; i < directions.length; i++) {
+        journey.push(`${directions[i]} ${description[i]} `);
+    }
+    console.log(`Directions:`);
+    for(let steps in journey){
+        console.log(`${parseInt(steps)+1}: ${journey[steps]}`);
+    }
 }
 
 /* Part 3 */
- async function getJourneyToStopPoint(postCode, stopPoint) {
-
-    const tflJourneyPlannerAPIURL = `https://api.tfl.gov.uk/Journey/JourneyResults/NW51TL/to/490008660N`;
-    const tflJourneyPlannerRawData = await fetchAPI(tflJourneyPlannerAPIURL);
-    //parse raw data --> 
-    const JourneySteps = parseTflJourneyPlannerRawData(tflJourneyPlannerRawData);
-    //display directly or return journey steps to busBoard();
+ async function getJourneyToStopPoint(stopCode) {
+    const tflJourneyPlannerAPIURL = "https://api.tfl.gov.uk/Journey/JourneyResults/"+postCode+"/to/"+stopCode;
+    const tflJourneyPlannerRawData = await fetchAPI(tflJourneyPlannerAPIURL)
+    const parsedData = await parseTflJourneyPlannerRawData(tflJourneyPlannerRawData);
+    return formatJourney(parsedData);
  }
-
+ 
 async function busBoard() {
     const stopPointDetails = await getStopPointsDetails(); 
     if (stopPointDetails.length === 0) {
@@ -123,7 +152,8 @@ async function busBoard() {
                 console.log(`No buses currently due to arrive at ${stopPointDetails[index].BusStop}.`);
             }
             else { 
-            formattedBusDetails(busStopArrival,busStopName);
+                formattedBusDetails(busStopArrival,busStopName);
+                await getJourneyToStopPoint(stopPoint);
             }
         }
     }}
