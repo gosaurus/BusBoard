@@ -91,6 +91,23 @@ async function getArrivalPredictions(busStopURL) {
     return firstFiveBuses;
 }
 
+
+//Function to parse raw data from TFL Journey Planner API
+
+async function parseTflJourneyPlannerRawData(tflJourneyPlannerRawData) {
+    
+}
+
+/* Part 3 */
+ async function getJourneyToStopPoint(postCode, stopPoint) {
+
+    const tflJourneyPlannerAPIURL = `https://api.tfl.gov.uk/Journey/JourneyResults/NW51TL/to/490008660N`;
+    const tflJourneyPlannerRawData = await fetchAPI(tflJourneyPlannerAPIURL);
+    //parse raw data --> 
+    const JourneySteps = parseTflJourneyPlannerRawData(tflJourneyPlannerRawData);
+    //display directly or return journey steps to busBoard();
+ }
+
 async function busBoard() {
     const stopPointDetails = await getStopPointsDetails(); 
     if (stopPointDetails.length === 0) {
@@ -103,7 +120,7 @@ async function busBoard() {
             const busStopName = stopPointDetails[index].BusStop;
             const busStopArrival= await getArrivalPredictions(busStopURL);
             if (busStopArrival.length === 0) {
-                console.log(`No buses currently due to arrive at ${stopPointDetails[index].BusStop}`);
+                console.log(`No buses currently due to arrive at ${stopPointDetails[index].BusStop}.`);
             }
             else { 
             formattedBusDetails(busStopArrival,busStopName);
@@ -112,7 +129,3 @@ async function busBoard() {
     }}
 
 await busBoard();
-
-/* Part 3
- async function getJourneyToStopPoint(postCode, stopPoint) {
-const tflJourneyPlannerAPIURL = `https://api.tfl.gov.uk/Journey/JourneyResults/NW51TL/to/490008660N`;*/
